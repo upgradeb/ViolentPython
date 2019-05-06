@@ -1,0 +1,7 @@
+orange
+apple
+kali
+secret
+python
+secert
+root
