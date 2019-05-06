@@ -3,33 +3,35 @@
 
 
 import zipfile
+import argparse
+from threading import Thread
 
 
 def extractFile(zFile, password):
     try:
-        # zFile.extractall(pwd=b"apple")
-        # print("[*] Password = " + bytes.decode(password) + "\n")
         zFile.extractall(pwd=password)
-        # print("[+] Password = " + bytes.decode(password) + "\n")
+        print("[+] Password = " + bytes.decode(password) + "\n")
         return password
     except Exception as e:
         return
-        # print("[*] Password = " + bytes.decode(password) + "\n")
-        # pass
-        # print(e)
 
 
-def main():
-    zFile = zipfile.ZipFile("evil.zip")
-    passFile = open('key.txt')
+def main(file, pwd):
+    zFile = zipfile.ZipFile(file)
+    passFile = open(pwd)
 
     for line in passFile.readlines():
         password = line.strip('\n')
         password = bytes(password, encoding="utf8")
-        guess = extractFile(zFile,password)
-        if guess:
-            print("[+] Password = " + bytes.decode(password) + "\n")
+        t = Thread(target=extractFile, args=(zFile, password))
+        t.start()
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.description = "Unzip file use password lists!"
+    parser.add_argument("-f", "--file", required=True, help="input zip file name")
+    parser.add_argument("-p", "--password", required=True, help="input zip password list file")
+    args = parser.parse_args()
+
+    main(args.file, args.password)
